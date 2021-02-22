@@ -438,8 +438,8 @@ type ServerCapabilities struct {
 	DefinitionProvider               bool                             `json:"definitionProvider,omitempty"`
 	TypeDefinitionProvider           bool                             `json:"typeDefinitionProvider,omitempty"`
 	ImplementationProvider           *ImplementationOptions           `json:"implementationProvider,omitempty"`
-	ReferencesProvider               bool                             `json:"referencesProvider,omitempty"`
-	DocumentHighlightProvider        bool                             `json:"documentHighlightProvider,omitempty"`
+	ReferencesProvider               *ReferenceOptions                `json:"referencesProvider,omitempty"`
+	DocumentHighlightProvider        *DocumentHighlightOptions        `json:"documentHighlightProvider,omitempty"`
 	DocumentSymbolProvider           bool                             `json:"documentSymbolProvider,omitempty"`
 	CodeActionProvider               bool                             `json:"codeActionProvider,omitempty"`
 	CodeLensProvider                 *CodeLensOptions                 `json:"codeLensProvider,omitempty"`
@@ -575,6 +575,14 @@ type DeclarationOptions struct {
 }
 
 type ImplementationOptions struct {
+}
+
+type DocumentHighlightOptions struct {
+	WorkDoneProgressOptions
+}
+
+type ReferenceOptions struct {
+	WorkDoneProgressOptions
 }
 
 type CompletionItemKind int
@@ -791,8 +799,8 @@ const (
 )
 
 type DocumentHighlight struct {
-	Range Range `json:"range"`
-	Kind  int   `json:"kind,omitempty"`
+	Range Range                 `json:"range"`
+	Kind  DocumentHighlightKind `json:"kind,omitempty"`
 }
 
 type DocumentSymbolParams struct {
@@ -885,6 +893,30 @@ type DocumentSymbol struct {
 	Range          Range            `json:"range"`
 	SelectionRange Range            `json:"selectionRange"`
 	Children       []DocumentSymbol `json:"children,omitempty"` // For example fields in a class
+}
+
+type SemanticTokensParams struct {
+	//WorkDoneProgressParams
+	//PartialResultParams
+	/**
+	 * The text document.
+	 */
+	TextDocument TextDocumentIdentifier `json:"textDocument"`
+}
+
+type SemanticTokens struct {
+	/**
+	 * An optional result id. If provided and clients support delta updating
+	 * the client will include the result id in the next semantic token request.
+	 * A server can then instead of computing all semantic tokens again simply
+	 * send a delta.
+	 */
+	ResultId string `json:"resultId,omitempty"`
+
+	/**
+	 * The actual tokens.
+	 */
+	Data []uint `json:"data"`
 }
 
 type WorkspaceSymbolParams struct {
@@ -1007,8 +1039,8 @@ const (
 )
 
 type FileEvent struct {
-	URI  DocumentURI `json:"uri"`
-	Type int         `json:"type"`
+	URI  DocumentURI    `json:"uri"`
+	Type FileChangeType `json:"type"`
 }
 
 type DidChangeWatchedFilesParams struct {
