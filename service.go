@@ -823,7 +823,7 @@ type LinkedEditingRanges struct {
 	 * the given ranges. If no pattern is provided, the client configuration's word
 	 * pattern will be used.
 	 */
-	WordPattern *string  `json:"wordPattern,omitempty"`
+	WordPattern *string `json:"wordPattern,omitempty"`
 }
 
 type SymbolKind int
@@ -1002,18 +1002,60 @@ type DidChangeTextDocumentParams struct {
 	ContentChanges []TextDocumentContentChangeEvent `json:"contentChanges"`
 }
 
+// rangeLength is removed, since it is deprecated
 type TextDocumentContentChangeEvent struct {
-	Range       *Range `json:"range,omitEmpty"`
-	RangeLength uint   `json:"rangeLength,omitEmpty"`
-	Text        string `json:"text"`
+	Range Range  `json:"range"`
+	Text  string `json:"text"`
 }
 
 type DidCloseTextDocumentParams struct {
 	TextDocument TextDocumentIdentifier `json:"textDocument"`
 }
 
-type DidSaveTextDocumentParams struct {
+type TextDocumentSaveReason int
+
+const (
+
+	/**
+	 * Manually triggered, e.g. by the user pressing save, by starting
+	 * debugging, or by an API call.
+	 */
+	TDSRManual TextDocumentSaveReason = 1
+
+	/**
+	 * Automatic after a delay.
+	 */
+	TDSRManualAfterDelay = 2
+
+	/**
+	 * When the editor lost focus.
+	 */
+	TDSRManualFocusOut = 3
+)
+
+type WillSaveTextDocumentParams struct {
+	/**
+	 * The document that will be saved.
+	 */
 	TextDocument TextDocumentIdentifier `json:"textDocument"`
+
+	/**
+	 * The 'TextDocumentSaveReason'.
+	 */
+	Reason TextDocumentSaveReason `json:"reason"`
+}
+
+type DidSaveTextDocumentParams struct {
+	/**
+	 * The document that was saved.
+	 */
+	TextDocument TextDocumentIdentifier `json:"textDocument"`
+
+	/**
+	 * Optional the content when saved. Depends on the includeText value
+	 * when the save notification was requested.
+	 */
+	Text string `json:"text",omitempty`
 }
 
 type MessageType int
